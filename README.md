@@ -9,13 +9,12 @@ Version Python 3.8 ou plus
 pip install -r requirements.txt
 ```
 
-### spacy
-```
-python -m spacy download fr_core_news_sm
-```
+### Pretraitement
+#### fichiers a tester avec des phrases inutiles de wikipedia
+wiki_000711</br>
+wiki_000297</br>
+wiki_000468</br>
+wiki_000612</br>
 
-### Pretraitement, fichiers a tester
-wiki_000711
-wiki_000297
-wiki_000468
-wiki_000612
+#### preprocessed_data.pkl
+Correspond à tous les textes netoyees et préparés pour les algo de recherches stockees pour etre directement reutilisees
