@@ -1,0 +1,5 @@
+preprocessed_data.pkl
+tfidf_model.pkl
+.venv
+.idea
+__pycache__/
