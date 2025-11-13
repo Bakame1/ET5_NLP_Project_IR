@@ -1,0 +1,604 @@
+{
+  "P@k": {
+    "1": 0.9591836734693877,
+    "5": 0.19183673469387755,
+    "10": 0.09591836734693877
+  },
+  "R@k": {
+    "1": 0.9591836734693877,
+    "5": 0.9591836734693877,
+    "10": 0.9591836734693877
+  },
+  "MRR": 0.9591836734693877,
+  "MAP": 0.9591836734693877,
+  "per_query": {
+    "q0": {
+      "retrieved": [
+        "wiki_066072.txt",
+        "wiki_076568.txt",
+        "wiki_108139.txt",
+        "wiki_098464.txt",
+        "wiki_029858.txt"
+      ],
+      "relevant": [
+        "wiki_066072.txt"
+      ]
+    },
+    "q1": {
+      "retrieved": [
+        "wiki_090261.txt",
+        "wiki_102194.txt",
+        "wiki_082743.txt",
+        "wiki_075387.txt",
+        "wiki_002699.txt"
+      ],
+      "relevant": [
+        "wiki_090261.txt"
+      ]
+    },
+    "q2": {
+      "retrieved": [
+        "wiki_013117.txt",
+        "wiki_001190.txt",
+        "wiki_000524.txt",
+        "wiki_000862.txt",
+        "wiki_116632.txt"
+      ],
+      "relevant": [
+        "wiki_013117.txt"
+      ]
+    },
+    "q3": {
+      "retrieved": [
+        "wiki_090155.txt",
+        "wiki_068087.txt",
+        "wiki_025851.txt",
+        "wiki_070215.txt",
+        "wiki_075493.txt"
+      ],
+      "relevant": [
+        "wiki_090155.txt"
+      ]
+    },
+    "q4": {
+      "retrieved": [
+        "wiki_016480.txt",
+        "wiki_093685.txt",
+        "wiki_039825.txt",
+        "wiki_069017.txt",
+        "wiki_054206.txt"
+      ],
+      "relevant": [
+        "wiki_016480.txt"
+      ]
+    },
+    "q5": {
+      "retrieved": [
+        "wiki_042186.txt",
+        "wiki_019479.txt",
+        "wiki_024632.txt",
+        "wiki_025288.txt",
+        "wiki_056638.txt"
+      ],
+      "relevant": [
+        "wiki_042186.txt"
+      ]
+    },
+    "q6": {
+      "retrieved": [
+        "wiki_101989.txt",
+        "wiki_087117.txt",
+        "wiki_106371.txt",
+        "wiki_102668.txt",
+        "wiki_096588.txt"
+      ],
+      "relevant": [
+        "wiki_101989.txt"
+      ]
+    },
+    "q7": {
+      "retrieved": [
+        "wiki_044515.txt",
+        "wiki_072503.txt",
+        "wiki_057992.txt",
+        "wiki_028989.txt",
+        "wiki_097553.txt"
+      ],
+      "relevant": [
+        "wiki_044515.txt"
+      ]
+    },
+    "q8": {
+      "retrieved": [
+        "wiki_047750.txt",
+        "wiki_058559.txt",
+        "wiki_070048.txt",
+        "wiki_057452.txt",
+        "wiki_057839.txt"
+      ],
+      "relevant": [
+        "wiki_047750.txt"
+      ]
+    },
+    "q9": {
+      "retrieved": [
+        "wiki_069094.txt",
+        "wiki_022546.txt",
+        "wiki_080098.txt",
+        "wiki_077241.txt",
+        "wiki_095136.txt"
+      ],
+      "relevant": [
+        "wiki_069094.txt"
+      ]
+    },
+    "q10": {
+      "retrieved": [
+        "wiki_031761.txt",
+        "wiki_045675.txt",
+        "wiki_070838.txt",
+        "wiki_076649.txt",
+        "wiki_111700.txt"
+      ],
+      "relevant": [
+        "wiki_031761.txt"
+      ]
+    },
+    "q11": {
+      "retrieved": [
+        "wiki_106054.txt",
+        "wiki_064720.txt",
+        "wiki_117076.txt",
+        "wiki_000530.txt",
+        "wiki_116632.txt"
+      ],
+      "relevant": [
+        "wiki_106054.txt"
+      ]
+    },
+    "q13": {
+      "retrieved": [
+        "wiki_089929.txt",
+        "wiki_013184.txt",
+        "wiki_008275.txt",
+        "wiki_110110.txt",
+        "wiki_059456.txt"
+      ],
+      "relevant": [
+        "wiki_089929.txt"
+      ]
+    },
+    "q14": {
+      "retrieved": [
+        "wiki_050542.txt",
+        "wiki_076456.txt",
+        "wiki_113000.txt",
+        "wiki_087190.txt",
+        "wiki_074804.txt"
+      ],
+      "relevant": [
+        "wiki_050542.txt"
+      ]
+    },
+    "q15": {
+      "retrieved": [
+        "wiki_066284.txt",
+        "wiki_017074.txt",
+        "wiki_070642.txt",
+        "wiki_081835.txt",
+        "wiki_050867.txt"
+      ],
+      "relevant": [
+        "wiki_066284.txt"
+      ]
+    },
+    "q16": {
+      "retrieved": [
+        "wiki_096663.txt",
+        "wiki_022124.txt",
+        "wiki_057344.txt",
+        "wiki_075493.txt",
+        "wiki_115057.txt"
+      ],
+      "relevant": [
+        "wiki_002556.txt"
+      ]
+    },
+    "q17": {
+      "retrieved": [
+        "wiki_067132.txt",
+        "wiki_070598.txt",
+        "wiki_049628.txt",
+        "wiki_019828.txt",
+        "wiki_109864.txt"
+      ],
+      "relevant": [
+        "wiki_067132.txt"
+      ]
+    },
+    "q18": {
+      "retrieved": [
+        "wiki_076478.txt",
+        "wiki_091260.txt",
+        "wiki_070141.txt",
+        "wiki_098851.txt",
+        "wiki_047154.txt"
+      ],
+      "relevant": [
+        "wiki_076478.txt"
+      ]
+    },
+    "q19": {
+      "retrieved": [
+        "wiki_068110.txt",
+        "wiki_005897.txt",
+        "wiki_005770.txt",
+        "wiki_005839.txt",
+        "wiki_005800.txt"
+      ],
+      "relevant": [
+        "wiki_068110.txt"
+      ]
+    },
+    "q20": {
+      "retrieved": [
+        "wiki_046422.txt",
+        "wiki_047262.txt",
+        "wiki_109670.txt",
+        "wiki_088179.txt",
+        "wiki_080608.txt"
+      ],
+      "relevant": [
+        "wiki_046422.txt"
+      ]
+    },
+    "q21": {
+      "retrieved": [
+        "wiki_002357.txt",
+        "wiki_048162.txt",
+        "wiki_090127.txt",
+        "wiki_062813.txt",
+        "wiki_046443.txt"
+      ],
+      "relevant": [
+        "wiki_002357.txt"
+      ]
+    },
+    "q22": {
+      "retrieved": [
+        "wiki_047210.txt",
+        "wiki_089161.txt",
+        "wiki_052926.txt",
+        "wiki_077264.txt",
+        "wiki_101396.txt"
+      ],
+      "relevant": [
+        "wiki_047210.txt"
+      ]
+    },
+    "q23": {
+      "retrieved": [
+        "wiki_080266.txt",
+        "wiki_006792.txt",
+        "wiki_037858.txt",
+        "wiki_099811.txt",
+        "wiki_028578.txt"
+      ],
+      "relevant": [
+        "wiki_049631.txt"
+      ]
+    },
+    "q24": {
+      "retrieved": [
+        "wiki_055201.txt",
+        "wiki_049182.txt",
+        "wiki_028989.txt",
+        "wiki_097553.txt",
+        "wiki_058256.txt"
+      ],
+      "relevant": [
+        "wiki_055201.txt"
+      ]
+    },
+    "q25": {
+      "retrieved": [
+        "wiki_048831.txt",
+        "wiki_062670.txt",
+        "wiki_051958.txt",
+        "wiki_081898.txt",
+        "wiki_059965.txt"
+      ],
+      "relevant": [
+        "wiki_048831.txt"
+      ]
+    },
+    "q26": {
+      "retrieved": [
+        "wiki_068792.txt",
+        "wiki_106037.txt",
+        "wiki_019828.txt",
+        "wiki_000107.txt",
+        "wiki_001190.txt"
+      ],
+      "relevant": [
+        "wiki_068792.txt"
+      ]
+    },
+    "q27": {
+      "retrieved": [
+        "wiki_076532.txt",
+        "wiki_072126.txt",
+        "wiki_085306.txt",
+        "wiki_068610.txt",
+        "wiki_046615.txt"
+      ],
+      "relevant": [
+        "wiki_076532.txt"
+      ]
+    },
+    "q28": {
+      "retrieved": [
+        "wiki_041649.txt",
+        "wiki_040461.txt",
+        "wiki_091455.txt",
+        "wiki_098931.txt",
+        "wiki_089051.txt"
+      ],
+      "relevant": [
+        "wiki_041649.txt"
+      ]
+    },
+    "q29": {
+      "retrieved": [
+        "wiki_106675.txt",
+        "wiki_008089.txt",
+        "wiki_112022.txt",
+        "wiki_027186.txt",
+        "wiki_046323.txt"
+      ],
+      "relevant": [
+        "wiki_106675.txt"
+      ]
+    },
+    "q30": {
+      "retrieved": [
+        "wiki_050756.txt",
+        "wiki_114949.txt",
+        "wiki_054861.txt",
+        "wiki_105910.txt",
+        "wiki_049219.txt"
+      ],
+      "relevant": [
+        "wiki_050756.txt"
+      ]
+    },
+    "q31": {
+      "retrieved": [
+        "wiki_070405.txt",
+        "wiki_075603.txt",
+        "wiki_072449.txt",
+        "wiki_095136.txt",
+        "wiki_082507.txt"
+      ],
+      "relevant": [
+        "wiki_070405.txt"
+      ]
+    },
+    "q32": {
+      "retrieved": [
+        "wiki_005955.txt",
+        "wiki_117162.txt",
+        "wiki_099573.txt",
+        "wiki_061426.txt",
+        "wiki_028030.txt"
+      ],
+      "relevant": [
+        "wiki_005955.txt"
+      ]
+    },
+    "q33": {
+      "retrieved": [
+        "wiki_056712.txt",
+        "wiki_029536.txt",
+        "wiki_084607.txt",
+        "wiki_067619.txt",
+        "wiki_043498.txt"
+      ],
+      "relevant": [
+        "wiki_056712.txt"
+      ]
+    },
+    "q34": {
+      "retrieved": [
+        "wiki_044205.txt",
+        "wiki_018576.txt",
+        "wiki_044184.txt",
+        "wiki_002710.txt",
+        "wiki_048735.txt"
+      ],
+      "relevant": [
+        "wiki_044205.txt"
+      ]
+    },
+    "q35": {
+      "retrieved": [
+        "wiki_116932.txt",
+        "wiki_078514.txt",
+        "wiki_045016.txt",
+        "wiki_058984.txt",
+        "wiki_002837.txt"
+      ],
+      "relevant": [
+        "wiki_116932.txt"
+      ]
+    },
+    "q36": {
+      "retrieved": [
+        "wiki_099338.txt",
+        "wiki_090573.txt",
+        "wiki_062878.txt",
+        "wiki_042486.txt",
+        "wiki_076095.txt"
+      ],
+      "relevant": [
+        "wiki_099338.txt"
+      ]
+    },
+    "q37": {
+      "retrieved": [
+        "wiki_095665.txt",
+        "wiki_004669.txt",
+        "wiki_030979.txt",
+        "wiki_047885.txt",
+        "wiki_051568.txt"
+      ],
+      "relevant": [
+        "wiki_095665.txt"
+      ]
+    },
+    "q38": {
+      "retrieved": [
+        "wiki_047494.txt",
+        "wiki_057163.txt",
+        "wiki_020542.txt",
+        "wiki_115935.txt",
+        "wiki_020213.txt"
+      ],
+      "relevant": [
+        "wiki_047494.txt"
+      ]
+    },
+    "q39": {
+      "retrieved": [
+        "wiki_070642.txt",
+        "wiki_066284.txt",
+        "wiki_081835.txt",
+        "wiki_017074.txt",
+        "wiki_001942.txt"
+      ],
+      "relevant": [
+        "wiki_070642.txt"
+      ]
+    },
+    "q40": {
+      "retrieved": [
+        "wiki_055790.txt",
+        "wiki_042504.txt",
+        "wiki_000890.txt",
+        "wiki_086850.txt",
+        "wiki_047189.txt"
+      ],
+      "relevant": [
+        "wiki_055790.txt"
+      ]
+    },
+    "q41": {
+      "retrieved": [
+        "wiki_043087.txt",
+        "wiki_061551.txt",
+        "wiki_081898.txt",
+        "wiki_062670.txt",
+        "wiki_051958.txt"
+      ],
+      "relevant": [
+        "wiki_043087.txt"
+      ]
+    },
+    "q42": {
+      "retrieved": [
+        "wiki_019665.txt",
+        "wiki_069060.txt",
+        "wiki_054861.txt",
+        "wiki_096756.txt",
+        "wiki_107028.txt"
+      ],
+      "relevant": [
+        "wiki_019665.txt"
+      ]
+    },
+    "q43": {
+      "retrieved": [
+        "wiki_007873.txt",
+        "wiki_048069.txt",
+        "wiki_106054.txt",
+        "wiki_031841.txt",
+        "wiki_073612.txt"
+      ],
+      "relevant": [
+        "wiki_007873.txt"
+      ]
+    },
+    "q44": {
+      "retrieved": [
+        "wiki_048513.txt",
+        "wiki_050542.txt",
+        "wiki_106059.txt",
+        "wiki_047189.txt",
+        "wiki_086850.txt"
+      ],
+      "relevant": [
+        "wiki_048513.txt"
+      ]
+    },
+    "q45": {
+      "retrieved": [
+        "wiki_061802.txt",
+        "wiki_099573.txt",
+        "wiki_098390.txt",
+        "wiki_023659.txt",
+        "wiki_069996.txt"
+      ],
+      "relevant": [
+        "wiki_061802.txt"
+      ]
+    },
+    "q46": {
+      "retrieved": [
+        "wiki_067668.txt",
+        "wiki_029224.txt",
+        "wiki_004009.txt",
+        "wiki_043018.txt",
+        "wiki_069459.txt"
+      ],
+      "relevant": [
+        "wiki_067668.txt"
+      ]
+    },
+    "q47": {
+      "retrieved": [
+        "wiki_028276.txt",
+        "wiki_039819.txt",
+        "wiki_107414.txt",
+        "wiki_073892.txt",
+        "wiki_055426.txt"
+      ],
+      "relevant": [
+        "wiki_028276.txt"
+      ]
+    },
+    "q48": {
+      "retrieved": [
+        "wiki_049182.txt",
+        "wiki_047808.txt",
+        "wiki_108542.txt",
+        "wiki_034138.txt",
+        "wiki_043155.txt"
+      ],
+      "relevant": [
+        "wiki_049182.txt"
+      ]
+    },
+    "q49": {
+      "retrieved": [
+        "wiki_062202.txt",
+        "wiki_016534.txt",
+        "wiki_046703.txt",
+        "wiki_099964.txt",
+        "wiki_006903.txt"
+      ],
+      "relevant": [
+        "wiki_062202.txt"
+      ]
+    }
+  }
+}
