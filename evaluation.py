@@ -1,117 +1,108 @@
 from typing import List, Set, Dict
-
-try: # Test si pytrec_eval est disponible (beaucoup d'erreurs d'importation selon les environnements)
-    import pytrec_eval
-    PYTREC_EVAL_AVAILABLE = True
-except ImportError:
-    PYTREC_EVAL_AVAILABLE = False
-
-if not PYTREC_EVAL_AVAILABLE: # Si pytrec_eval n'est pas disponible, le code suivant réécrit les fonctions utilisées
     
-    """
-    Calcule la précision à k (P@k).
-    
-    @retrieved : liste d'identifiants récupérés ordonnés par score décroissant
-    @relevant : ensemble d'identifiants pertinents pour la requête
-    @k : seuil k
-    @return : précision@k (float)
-    """
-    def precision_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
-        if k <= 0:
-            return 0.0
-        retrieved_k = retrieved[:k]
-        if not retrieved_k:
-            return 0.0
-        relevant_in_k = sum(1 for d in retrieved_k if d in relevant) # Nombre de documents pertinents dans les k premiers
-        return relevant_in_k / float(k) # Diviser par k
+"""
+Calcule la précision à k (P@k).
 
-    """
-    Calcule le rappel à k (R@k).
-    
-    @retrieved : liste d'identifiants récupérés ordonnés
-    @relevant : ensemble d'identifiants pertinents
-    @k : seuil k
-    @return : rappel@k (float)
-    """
-    def recall_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
-        if not relevant:
-            return 0.0
-        retrieved_k = retrieved[:k]
-        relevant_in_k = sum(1 for d in retrieved_k if d in relevant) # Nombre de documents pertinents dans les k premiers
-        return relevant_in_k / float(len(relevant)) # Diviser par le nombre total de documents pertinents
-
-    """
-    Calcule le Reciprocal Rank (RR) pour une requête.
-    
-    @retrieved : liste d'identifiants récupérés ordonnés
-    @relevant : ensemble d'identifiants pertinents
-    @return : RR (float) = 1/position du premier document pertinent, 0 si aucun pertinent
-    """
-    def reciprocal_rank(retrieved: List[str], relevant: Set[str]) -> float:
-        for idx, doc_id in enumerate(retrieved, start=1):
-            if doc_id in relevant: # Premier document pertinent trouvé
-                return 1.0 / idx
+@retrieved : liste d'identifiants récupérés ordonnés par score décroissant
+@relevant : ensemble d'identifiants pertinents pour la requête
+@k : seuil k
+@return : précision@k (float)
+"""
+def precision_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
+    if k <= 0:
         return 0.0
+    retrieved_k = retrieved[:k]
+    if not retrieved_k:
+        return 0.0
+    relevant_in_k = sum(1 for d in retrieved_k if d in relevant) # Nombre de documents pertinents dans les k premiers
+    return relevant_in_k / float(k) # Diviser par k
+
+"""
+Calcule le rappel à k (R@k).
+
+@retrieved : liste d'identifiants récupérés ordonnés
+@relevant : ensemble d'identifiants pertinents
+@k : seuil k
+@return : rappel@k (float)
+"""
+def recall_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
+    if not relevant:
+        return 0.0
+    retrieved_k = retrieved[:k]
+    relevant_in_k = sum(1 for d in retrieved_k if d in relevant) # Nombre de documents pertinents dans les k premiers
+    return relevant_in_k / float(len(relevant)) # Diviser par le nombre total de documents pertinents
+
+"""
+Calcule le Reciprocal Rank (RR) pour une requête.
+
+@retrieved : liste d'identifiants récupérés ordonnés
+@relevant : ensemble d'identifiants pertinents
+@return : RR (float) = 1/position du premier document pertinent, 0 si aucun pertinent
+"""
+def reciprocal_rank(retrieved: List[str], relevant: Set[str]) -> float:
+    for idx, doc_id in enumerate(retrieved, start=1):
+        if doc_id in relevant: # Premier document pertinent trouvé
+            return 1.0 / idx
+    return 0.0
 
 
-    """
-    Calcule l'Average Precision (AP) pour une requête.
-    
-    @retrieved : liste d'identifiants récupérés ordonnés
-    @relevant : ensemble d'identifiants pertinents
-    @return : moyenne des précisions calculées aux positions des documents pertinents
-    """
-    def average_precision(retrieved: List[str], relevant: Set[str]) -> float:
-        if not relevant:
-            return 0.0
-        num_relevant = 0
-        precisions = []
-        for idx, doc_id in enumerate(retrieved, start=1):
-            if doc_id in relevant:
-                num_relevant += 1 # Incrémente le nombre de documents pertinents trouvés
-                precisions.append(num_relevant / float(idx)) # Précision à cette position
-        if not precisions:
-            return 0.0
-        return sum(precisions) / float(len(relevant)) # On divise par le nombre total de documents pertinents
+"""
+Calcule l'Average Precision (AP) pour une requête.
 
-    """
-    Calcule la Mean Reciprocal Rank (MRR) sur un ensemble de requêtes.
-    
-    @list_of_retrieved : liste des listes récupérées par requête
-    @list_of_relevant : liste des ensembles pertinents par requête (même ordre)
-    @return : Moyenne des RR sur l'ensemble des requêtes
-    """
+@retrieved : liste d'identifiants récupérés ordonnés
+@relevant : ensemble d'identifiants pertinents
+@return : moyenne des précisions calculées aux positions des documents pertinents
+"""
+def average_precision(retrieved: List[str], relevant: Set[str]) -> float:
+    if not relevant:
+        return 0.0
+    num_relevant = 0
+    precisions = []
+    for idx, doc_id in enumerate(retrieved, start=1):
+        if doc_id in relevant:
+            num_relevant += 1 # Incrémente le nombre de documents pertinents trouvés
+            precisions.append(num_relevant / float(idx)) # Précision à cette position
+    if not precisions:
+        return 0.0
+    return sum(precisions) / float(len(relevant)) # On divise par le nombre total de documents pertinents
 
-    def mean_reciprocal_rank(list_of_retrieved: List[List[str]], list_of_relevant: List[Set[str]]) -> float:
-        assert len(list_of_retrieved) == len(list_of_relevant) # Vérifier la correspondance des longueurs
-        rr_sum = 0.0
-        for retrieved, relevant in zip(list_of_retrieved, list_of_relevant):
-            rr_sum += reciprocal_rank(retrieved, relevant) # Somme des RR
-        return rr_sum / len(list_of_retrieved) if list_of_retrieved else 0.0 # Moyenne des RR
+"""
+Calcule la Mean Reciprocal Rank (MRR) sur un ensemble de requêtes.
+
+@list_of_retrieved : liste des listes récupérées par requête
+@list_of_relevant : liste des ensembles pertinents par requête (même ordre)
+@return : Moyenne des RR sur l'ensemble des requêtes
+"""
+
+def mean_reciprocal_rank(list_of_retrieved: List[List[str]], list_of_relevant: List[Set[str]]) -> float:
+    assert len(list_of_retrieved) == len(list_of_relevant) # Vérifier la correspondance des longueurs
+    rr_sum = 0.0
+    for retrieved, relevant in zip(list_of_retrieved, list_of_relevant):
+        rr_sum += reciprocal_rank(retrieved, relevant) # Somme des RR
+    return rr_sum / len(list_of_retrieved) if list_of_retrieved else 0.0 # Moyenne des RR
 
 
-    """
-    Calcule la Mean Average Precision (MAP) sur un ensemble de requêtes.
-    
-    @list_of_retrieved : liste des listes récupérées par requête
-    @list_of_relevant : liste des ensembles pertinents par requête (même ordre)
-    @return : Moyenne des AP sur l'ensemble des requêtes
-    """
-    def mean_average_precision(list_of_retrieved: List[List[str]], list_of_relevant: List[Set[str]]) -> float:
-        assert len(list_of_retrieved) == len(list_of_relevant) # Vérifier la correspondance des longueurs
-        ap_sum = 0.0
-        for retrieved, relevant in zip(list_of_retrieved, list_of_relevant):
-            ap_sum += average_precision(retrieved, relevant) # Somme des AP
-        return ap_sum / len(list_of_retrieved) if list_of_retrieved else 0.0 # Moyenne des AP
+"""
+Calcule la Mean Average Precision (MAP) sur un ensemble de requêtes.
+
+@list_of_retrieved : liste des listes récupérées par requête
+@list_of_relevant : liste des ensembles pertinents par requête (même ordre)
+@return : Moyenne des AP sur l'ensemble des requêtes
+"""
+def mean_average_precision(list_of_retrieved: List[List[str]], list_of_relevant: List[Set[str]]) -> float:
+    assert len(list_of_retrieved) == len(list_of_relevant) # Vérifier la correspondance des longueurs
+    ap_sum = 0.0
+    for retrieved, relevant in zip(list_of_retrieved, list_of_relevant):
+        ap_sum += average_precision(retrieved, relevant) # Somme des AP
+    return ap_sum / len(list_of_retrieved) if list_of_retrieved else 0.0 # Moyenne des AP
 
 """
 Calcule P@k, R@k, MRR et MAP pour un ensemble de requêtes.
-Utilise pytrec_eval si disponible, sinon utilise les fonctions locales.
 
 @ground_truths : dictionnaire qui relie query_id à set(relevant_doc_ids)
 @retrieved_per_query : dictionnaire qui relie query_id à liste ordonnée de doc_ids récupérés
 @ks : liste des valeurs de k pour lesquelles calculer P@k et R@k (par défaut [1, 5, 10])
-@return : dictionnaire avec les métriques globales et, si pytrec_eval est utilisé, les métriques par requête
+@return : dictionnaire avec les métriques globales
 """
 def evaluate_all(ground_truths: Dict[str, Set[str]],
                  retrieved_per_query: Dict[str, List[str]],
@@ -119,60 +110,26 @@ def evaluate_all(ground_truths: Dict[str, Set[str]],
     if ks is None: # Valeurs par défaut
         ks = [1, 5, 10]
 
-    if PYTREC_EVAL_AVAILABLE: # Utilisation de pytrec_eval
-        qrels = {qid: {doc_id: 1 for doc_id in relevant} for qid, relevant in ground_truths.items()} # Format attendu par pytrec_eval
-        run = {qid: {doc_id: len(retrieved_per_query[qid]) - idx for idx, doc_id in enumerate(retrieved)} # Format attendu par pytrec_eval
-               for qid, retrieved in retrieved_per_query.items()}
+    list_of_retrieved = list(retrieved_per_query.values()) # Liste des listes récupérées
+    list_of_relevant = [ground_truths[qid] for qid in retrieved_per_query.keys()] # Liste des ensembles pertinents
 
-        evaluator = pytrec_eval.RelevanceEvaluator(qrels, {'map', 'recip_rank', 'precision', 'recall'}) # Initialisation de l'évaluateur
-        results = evaluator.evaluate(run) # Calcul des métriques
+    mean_p_at_k = {k: 0.0 for k in ks}
+    mean_r_at_k = {k: 0.0 for k in ks}
+    for k in ks:
+        mean_p_at_k[k] = sum(precision_at_k(retrieved, relevant, k)
+                             for retrieved, relevant in zip(list_of_retrieved, list_of_relevant)) / len(list_of_retrieved) # Moyenne P@k
+        mean_r_at_k[k] = sum(recall_at_k(retrieved, relevant, k)
+                             for retrieved, relevant in zip(list_of_retrieved, list_of_relevant)) / len(list_of_retrieved) # Moyenne R@k
 
-        mean_p_at_k = {k: 0.0 for k in ks}
-        mean_r_at_k = {k: 0.0 for k in ks}
-        mrr = 0.0
-        map_score = 0.0
+    mrr = mean_reciprocal_rank(list_of_retrieved, list_of_relevant) # Calcul MRR
+    map_score = mean_average_precision(list_of_retrieved, list_of_relevant) # Calcul MAP
 
-        for qid, metrics in results.items(): # Agrégation des résultats
-            for k in ks:
-                mean_p_at_k[k] += metrics.get(f'precision_{k}', 0.0) # Moyenne P@k
-                mean_r_at_k[k] += metrics.get(f'recall_{k}', 0.0) # Moyenne R@k
-            mrr += metrics.get('recip_rank', 0.0) # Moyenne MRR
-            map_score += metrics.get('map', 0.0) # Moyenne MAP
-
-        num_queries = len(results) # Calcul final des moyennes avec le nombre de requêtes
-        mean_p_at_k = {k: v / num_queries for k, v in mean_p_at_k.items()}
-        mean_r_at_k = {k: v / num_queries for k, v in mean_r_at_k.items()}
-        mrr /= num_queries
-        map_score /= num_queries
-
-        return {
-            "P@k": mean_p_at_k,
-            "R@k": mean_r_at_k,
-            "MRR": mrr,
-            "MAP": map_score,
-            "per_query": results
-        }
-    else: # Fonctions locales
-        list_of_retrieved = list(retrieved_per_query.values()) # Liste des listes récupérées
-        list_of_relevant = [ground_truths[qid] for qid in retrieved_per_query.keys()] # Liste des ensembles pertinents
-
-        mean_p_at_k = {k: 0.0 for k in ks}
-        mean_r_at_k = {k: 0.0 for k in ks}
-        for k in ks:
-            mean_p_at_k[k] = sum(precision_at_k(retrieved, relevant, k)
-                                 for retrieved, relevant in zip(list_of_retrieved, list_of_relevant)) / len(list_of_retrieved) # Moyenne P@k
-            mean_r_at_k[k] = sum(recall_at_k(retrieved, relevant, k)
-                                 for retrieved, relevant in zip(list_of_retrieved, list_of_relevant)) / len(list_of_retrieved) # Moyenne R@k
-
-        mrr = mean_reciprocal_rank(list_of_retrieved, list_of_relevant) # Calcul MRR
-        map_score = mean_average_precision(list_of_retrieved, list_of_relevant) # Calcul MAP
-
-        return {
-            "P@k": mean_p_at_k,
-            "R@k": mean_r_at_k,
-            "MRR": mrr,
-            "MAP": map_score
-        }
+    return {
+        "P@k": mean_p_at_k,
+        "R@k": mean_r_at_k,
+        "MRR": mrr,
+        "MAP": map_score
+    }
 
 # Améliorations potentielles :
 # - Ajouter ndcg (ex: 'ndcg_cut_10') si l'ordre des documents pertinents par position est important.
@@ -181,3 +138,4 @@ def evaluate_all(ground_truths: Dict[str, Set[str]],
 # - S'assurer que les qids dans ground_truths et retrieved_per_query correspondent bien (gestion des qids manquants).
 # - Pour reproducibilité, trier les documents avec un tie-breaker stable lors de la création de `run` (éviter variations dues à l'ordre non déterministe).
 # - Ajouter tests unitaires comparant les résultats pytrec_eval vs fallback local pour détecter divergences.
+# Regarder pytrec_eval.

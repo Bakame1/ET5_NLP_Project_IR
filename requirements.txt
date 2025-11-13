@@ -3,4 +3,3 @@ spacy
 tqdm
 joblib
 sentence-transformers
-pytrec_eval
