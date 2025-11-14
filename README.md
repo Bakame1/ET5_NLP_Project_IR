@@ -1,6 +1,7 @@
 # Projet IR - Recherche d'Information avec TF-IDF et Cross-Encoder
 
-Version Python 3.8 ou plus
+Version Python 3.8  : ou plus</br>
+Réalisé par : Titouan BEAUVERGER, Morgan PHILIPPE, Marko BABIC 
 
 ## Installation
 
