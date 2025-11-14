@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import preprocessing_all_text as preprocess
 import joblib
 from sentence_transformers import CrossEncoder
+from functools import lru_cache
 
 def identity(x):
     return x
@@ -64,7 +65,7 @@ Re-classe les documents issus du TF-IDF en utilisant un cross-encoder pour une m
 @return : une liste de tuples (doc_id, score_cross_encoder) triée par score décroissant
 """
 def rerank_with_cross_encoder(query, top_k_documents, documents, model_name='cross-encoder/ms-marco-MiniLM-L-6-v2'):
-    cross_encoder = CrossEncoder(model_name) # Charger le modèle cross-encoder
+    cross_encoder = get_cross_encoder(model_name)
 
     doc_dict = {doc["doc_id"]: doc["tokens"] for doc in documents} # Créer un dictionnaire pour accéder rapidement aux tokens par doc_id
 
@@ -82,6 +83,24 @@ def rerank_with_cross_encoder(query, top_k_documents, documents, model_name='cro
     reranked_documents.sort(key=lambda x: x[1], reverse=True) # Trier par score décroissant
 
     return reranked_documents
+
+
+@lru_cache(maxsize=2)
+def get_cross_encoder(model_name='cross-encoder/ms-marco-MiniLM-L-6-v2'):
+    """Charge et met en cache un cross-encoder."""
+    return CrossEncoder(model_name)
+
+
+def save_cross_encoder(model, output_dir='cross_encoder_model'):
+    os.makedirs(output_dir, exist_ok=True)
+    model.save(output_dir)
+
+
+def load_cross_encoder(output_dir='cross_encoder_model'):
+    if os.path.exists(output_dir):
+        return CrossEncoder(output_dir)
+    raise FileNotFoundError(f"Cross-encoder non trouvé dans {output_dir}")
+
 
 """
 Fonction complète combinant TF-IDF (rapide) et cross-encoder (précis).

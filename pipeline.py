@@ -3,6 +3,7 @@ import json
 import argparse
 import pickle
 from typing import Dict, List, Set, Tuple
+from typing import Callable
 
 import preprocessing_all_text as preprocess
 import indexation
@@ -80,42 +81,102 @@ def single_query_retrieve(X, vectorizer, documents, query_variants: List[str], k
     return final_ids[:k]
 
 
-def run_pipeline(args):
+def load_or_preprocess_documents(directory_path: str = 'wiki_split_extract_2k',
+                                 output_file: str = 'preprocessed_data.pkl',
+                                 force_preprocess: bool = False,
+                                 log_fn: Callable[[str], None] = print):
+    """Charge les documents prétraités depuis pickle ou relance le prétraitement."""
+    if os.path.exists(output_file) and not force_preprocess:
+        log_fn(f"Chargement des données prétraitées depuis {output_file}...")
+        with open(output_file, 'rb') as f:
+            return pickle.load(f)
+    log_fn("Lancement du prétraitement des documents...")
+    return preprocess.prepare_data_for_indexing(directory_path, output_file)
+
+
+def load_or_compute_tfidf(documents,
+                          model_file: str = 'tfidf_model.pkl',
+                          force_tfidf: bool = False,
+                          log_fn: Callable[[str], None] = print):
+    """Charge le modèle TF-IDF ou le recalcule si nécessaire."""
+    if os.path.exists(model_file) and not force_tfidf:
+        log_fn(f"Chargement du modèle TF-IDF depuis {model_file}...")
+        return indexation.load_tfidf_model(model_file)
+    log_fn("Calcul du TF-IDF...")
+    X, vectorizer = indexation.tf_idf(documents)
+    indexation.save_tfidf_model(X, vectorizer, model_file=model_file)
+    return X, vectorizer
+
+
+def retrieve_all_queries(X,
+                         vectorizer,
+                         documents,
+                         query_texts: Dict[str, List[str]],
+                         k: int,
+                         rerank: bool,
+                         top_k_for_reranking: int) -> Dict[str, List[str]]:
+    """Exécute la récupération (et reranking optionnel) pour toutes les requêtes."""
+    retrieved_per_query: Dict[str, List[str]] = {}
+    for qid, variants in query_texts.items():
+        retrieved_per_query[qid] = single_query_retrieve(
+            X,
+            vectorizer,
+            documents,
+            variants,
+            k=k,
+            rerank=rerank,
+            top_k_for_reranking=top_k_for_reranking,
+        )
+    return retrieved_per_query
+
+
+def run_pipeline(args, log_fn: Callable[[str], None] = print):
     # 1) Prétraitement si nécessaire
-    if os.path.exists('preprocessed_data.pkl') and not args.force_preprocess:
-        print("Chargement des données prétraitées depuis preprocessed_data.pkl...")
-        with open('preprocessed_data.pkl', 'rb') as f:
-            documents = pickle.load(f)
-    else:
-        print("Lancement du prétraitement des documents...")
-        documents = preprocess.prepare_data_for_indexing('wiki_split_extract_2k', 'preprocessed_data.pkl')
+    documents = load_or_preprocess_documents(
+        directory_path='wiki_split_extract_2k',
+        output_file='preprocessed_data.pkl',
+        force_preprocess=args.force_preprocess,
+        log_fn=log_fn,
+    )
 
     # 2) Charger ou calculer TF-IDF
-    if os.path.exists('tfidf_model.pkl') and not args.force_tfidf:
-        print("Chargement du modèle TF-IDF depuis tfidf_model.pkl...")
-        X, vectorizer = indexation.load_tfidf_model('tfidf_model.pkl')
-    else:
-        print("Calcul du TF-IDF...")
-        X, vectorizer = indexation.tf_idf(documents)
-        indexation.save_tfidf_model(X, vectorizer, model_file='tfidf_model.pkl')
+    X, vectorizer = load_or_compute_tfidf(
+        documents,
+        model_file='tfidf_model.pkl',
+        force_tfidf=args.force_tfidf,
+        log_fn=log_fn,
+    )
 
     # 3) Charger les queries et ground-truths
     ground_truths, query_texts = load_queries('requetes.jsonl')
 
     # 4) Pour chaque requête, récupérer et (optionnel) reranker
-    retrieved_per_query = {}
-    for qid, variants in query_texts.items():
-        retrieved = single_query_retrieve(X, vectorizer, documents, variants, k=args.k, rerank=args.rerank, top_k_for_reranking=args.top_k)
-        retrieved_per_query[qid] = retrieved
+    retrieved_per_query = retrieve_all_queries(
+        X,
+        vectorizer,
+        documents,
+        query_texts,
+        k=args.k,
+        rerank=args.rerank,
+        top_k_for_reranking=args.top_k,
+    )
 
     # 5) Calcul des métriques
-    results = evaluation.evaluate_all(ground_truths, retrieved_per_query, ks=[1,5,10])
+    results = evaluation.evaluate_all(ground_truths, retrieved_per_query, ks=[1, 5, 10])
 
     # 6) Sauvegarder résultats
-    print("Résultats :")
-    print(json.dumps(results, indent=2, ensure_ascii=False))
+    log_fn("Résultats :")
+    log_fn(json.dumps(results, indent=2, ensure_ascii=False))
     with open('evaluation_results.json', 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
+
+    return {
+        "metrics": results,
+        "retrieved": retrieved_per_query,
+        "ground_truths": ground_truths,
+        "query_texts": query_texts,
+        "documents": documents,
+    }
 
 
 if __name__ == '__main__':

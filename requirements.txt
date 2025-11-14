@@ -3,3 +3,4 @@ spacy
 tqdm
 joblib
 sentence-transformers
+streamlit
