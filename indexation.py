@@ -7,10 +7,16 @@ import joblib
 from sentence_transformers import CrossEncoder
 from functools import lru_cache
 
+# Fonction identité pour le vectoriseur TF-IDF
 def identity(x):
     return x
 
 def tf_idf(preprocessed_documents):
+    """
+    Calcule la matrice TF-IDF pour les documents prétraités.
+    @preprocessed_documents : liste de documents prétraités (chaque document est un dict avec 'doc_id' et 'tokens')
+    @return : matrice TF-IDF et le vectoriseur utilisé
+    """
 
     # Préparer les données pour TF-IDF
     #corpus =[" ".join(doc['tokens']) for doc in preprocessed_documents]
@@ -78,6 +84,7 @@ def rerank_with_cross_encoder(query, top_k_documents, documents, model_name='cro
         doc_ids.append(doc_id)
 
     scores = cross_encoder.predict(pairs) # Calculer les scores avec le cross-encoder
+    # score de cross-encoder : un score entre 0 et 1 indiquant la pertinence du document par rapport à la requête
 
     reranked_documents = [(doc_ids[i], float(scores[i])) for i in range(len(doc_ids))] # Créer une liste de tuples (doc_id, score)
     reranked_documents.sort(key=lambda x: x[1], reverse=True) # Trier par score décroissant
@@ -92,11 +99,13 @@ def get_cross_encoder(model_name='cross-encoder/ms-marco-MiniLM-L-6-v2'):
 
 
 def save_cross_encoder(model, output_dir='cross_encoder_model'):
+    """Sauvegarde le modèle cross-encoder dans le répertoire spécifié."""
     os.makedirs(output_dir, exist_ok=True)
     model.save(output_dir)
 
 
 def load_cross_encoder(output_dir='cross_encoder_model'):
+    """Charge le modèle cross-encoder depuis le répertoire spécifié."""
     if os.path.exists(output_dir):
         return CrossEncoder(output_dir)
     raise FileNotFoundError(f"Cross-encoder non trouvé dans {output_dir}")

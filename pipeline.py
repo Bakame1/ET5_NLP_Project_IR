@@ -117,7 +117,7 @@ def retrieve_all_queries(X, vectorizer, documents, query_texts, k, rerank, top_k
         )
     return retrieved_per_query
 
-
+# Pipeline principal executant toutes les étapes du projet
 def run_pipeline(args, log_fn = print):
     # 1) Prétraitement si nécessaire
     documents = load_or_preprocess_documents(
@@ -166,7 +166,7 @@ def run_pipeline(args, log_fn = print):
         "documents": documents,
     }
 
-
+# Point d'entrée principal via le terminal
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Pipeline recherche: preprocessing -> tf-idf -> (rerank) -> évaluation')
     parser.add_argument('--k', type=int, default=10, help='Nombre de résultats finaux par requête')

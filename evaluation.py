@@ -2,6 +2,7 @@ from typing import List, Set, Dict
     
 """
 Calcule la précision à k (P@k).
+Concretement, la proportion de documents pertinents parmi les k premiers documents récupérés.
 
 @retrieved : liste d'identifiants récupérés ordonnés par score décroissant
 @relevant : ensemble d'identifiants pertinents pour la requête
@@ -19,6 +20,7 @@ def precision_at_k(retrieved, relevant, k):
 
 """
 Calcule le rappel à k (R@k).
+Concretement, la proportion de documents pertinents récupérés parmi tous les documents pertinents.
 
 @retrieved : liste d'identifiants récupérés ordonnés
 @relevant : ensemble d'identifiants pertinents
@@ -34,10 +36,11 @@ def recall_at_k(retrieved, relevant, k):
 
 """
 Calcule le Reciprocal Rank (RR) pour une requête.
+RR = 1/position du premier document pertinent, 0 si aucun pertinent
 
 @retrieved : liste d'identifiants récupérés ordonnés
 @relevant : ensemble d'identifiants pertinents
-@return : RR (float) = 1/position du premier document pertinent, 0 si aucun pertinent
+@return : RR (float)
 """
 def reciprocal_rank(retrieved, relevant):
     for idx, doc_id in enumerate(retrieved, start=1):
@@ -68,6 +71,7 @@ def average_precision(retrieved, relevant):
 
 """
 Calcule la Mean Reciprocal Rank (MRR) sur un ensemble de requêtes.
+Soit la moyenne des Reciprocal Ranks (RR) de chaque requête.
 
 @list_of_retrieved : liste des listes récupérées par requête
 @list_of_relevant : liste des ensembles pertinents par requête (même ordre)

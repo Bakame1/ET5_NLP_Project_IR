@@ -40,6 +40,8 @@ def get_cached_tfidf(_documents, force_tfidf):
 
 
 def run_full_pipeline(k, top_k, rerank, force_preprocess, force_tfidf):
+    """Exécute le pipeline streamlit"""
+    
     class Args:
         pass
 
@@ -53,15 +55,26 @@ def run_full_pipeline(k, top_k, rerank, force_preprocess, force_tfidf):
     logs = []
 
     def log_fn(msg):
+        """Fonction de log pour capturer les messages."""
         logs.append(msg)
 
+    # On execute le pipeline principal
     output = pipeline.run_pipeline(args, log_fn=log_fn)
 
     return output, logs
 
 
 def search_query(query, documents, X, vectorizer, k, rerank, top_k_for_reranking):
-    """Effectue une recherche pour une requête unique."""
+    """Effectue une recherche pour une requête unique.
+    @query : texte de la requête
+    @documents : liste des documents prétraités
+    @X : matrice TF-IDF des documents
+    @vectorizer : le vectoriseur TF-IDF
+    @k : nombre de documents à retourner
+    @rerank : booléen, si True on utilise le cross-encoder pour reranker
+    @top_k_for_reranking : nombre de documents à récupérer avant reranking
+    @return : liste de tuples (doc_id, score_cross_encoder)
+    """
     if rerank:
         top_tfidf = indexation.get_top_k_documents(X, vectorizer, query, documents, top_k_for_reranking)
         results = indexation.rerank_with_cross_encoder(query, top_tfidf, documents)
@@ -69,38 +82,47 @@ def search_query(query, documents, X, vectorizer, k, rerank, top_k_for_reranking
     else:
         return indexation.get_top_k_documents(X, vectorizer, query, documents, k)
 
-
+# Programme principal Streamlit
 def main():
+    # Titre
     st.set_page_config(page_title='IR Pipeline Streamlit', layout='wide')
-    st.title('🔍 Interface Streamlit – Pipeline TF-IDF + Cross-Encoder')
+    st.title('Moteur de Recherche Wikipedia')
 
+    # Sidebar pour selection les valeurs des paramètres
     with st.sidebar:
         st.header('⚙️ Configuration')
 
         st.subheader('Paramètres de recherche')
-        k = st.slider('Nombre de résultats finaux (k)', min_value=1, max_value=50, value=10)
-        top_k = st.slider('Top-k pour reranking', min_value=k, max_value=150, value=max(30, k))
-        rerank = st.checkbox('Activer le reranking cross-encoder', value=False)
+
+        k = st.slider('Nombre de résultats finaux (k)', min_value=1, max_value=50, value=10)  # nombre de résultats finaux k
+        top_k = st.slider('Top-k pour reranking', min_value=k, max_value=150, value=max(30, k))# nombre de documents à récupérer avant reranking
+        rerank = st.checkbox('Activer le reranking cross-encoder', value=False)# box pour activer/désactiver le reranking
 
         st.subheader('Options avancées')
-        force_preprocess = st.checkbox('Forcer le prétraitement', value=False)
-        force_tfidf = st.checkbox('Forcer le recalcul TF-IDF', value=False)
+        force_preprocess = st.checkbox('Forcer le prétraitement', value=False)# box pour forcer le prétraitement des documents
+        force_tfidf = st.checkbox('Forcer le recalcul TF-IDF', value=False)# box pour forcer le recalcul du modèle TF-IDF
 
         st.divider()
         st.info('💡 Configurez les options puis utilisez les onglets ci-dessus.')
 
+    # tab1 : Recherche interactive comme sur un moteur de recherche
+    # tab2 : Évaluation complète du pipeline sur toutes les requêtes du fichier JSONL
     tab1, tab2 = st.tabs(['🔎 Recherche Interactive', '📊 Évaluation Complète'])
 
+    ################### Onglet 1 : Recherche Interactive ###################
     with tab1:
         st.header('Recherche de documents')
         st.write('Entrez une requête pour rechercher des documents pertinents dans la collection.')
 
-        query = st.text_input('🔍 Votre requête:', placeholder='Ex: qu\'est-ce que la 6e armée')
+        # Champ de saisie de la requête
+        query = st.text_input('Votre requête:', placeholder='Ex: qu\'est-ce que la 6e armée')
 
         col1, col2 = st.columns([1, 4])
         with col1:
+            # Bouton de recherche
             search_button = st.button('🚀 Rechercher', type='primary', use_container_width=True)
 
+        # Exécution de la recherche
         if search_button and query:
             with st.spinner('Chargement des données...'):
                 documents = get_cached_documents(force_preprocess)
@@ -115,6 +137,7 @@ def main():
 
             st.subheader(f'Top {len(results)} résultats pour: "{query}"')
 
+            # Affichage des résultats
             if results:
                 df_results = pd.DataFrame([
                     {
@@ -127,6 +150,7 @@ def main():
 
                 st.dataframe(df_results, use_container_width=True, hide_index=True)
 
+                # Visualisation des détails des documents
                 st.subheader('📄 Détails des documents')
                 for i, (doc_id, score) in enumerate(results[:5]):
                     with st.expander(f'#{i+1} - {doc_id} (Score: {score:.4f})'):
@@ -144,12 +168,15 @@ def main():
         elif search_button and not query:
             st.warning('⚠️ Veuillez entrer une requête.')
 
+    ################### Onglet 2 : Évaluation sur le fichier JSONL ###################
     with tab2:
         st.header('Évaluation du pipeline complet')
         st.write('Lancez l\'évaluation sur toutes les requêtes du fichier `requetes.jsonl`.')
 
-        run_button = st.button('▶️ Lancer le pipeline d\'évaluation', type='primary')
+        # Bouton pour lancer l'évaluation
+        run_button = st.button('Lancer le pipeline d\'évaluation', type='primary')
 
+        # Exécution de l'évaluation
         if run_button:
             with st.spinner('Exécution du pipeline...'):
                 start = time.time()
@@ -158,6 +185,7 @@ def main():
 
             st.success(f'✅ Pipeline terminé en {duration:.1f}s')
 
+            # Affichage des résultats
             with st.expander('📋 Journal d\'exécution'):
                 st.code('\n'.join(logs) or 'Aucun log')
 
@@ -167,6 +195,7 @@ def main():
 
             col1, col2, col3, col4 = st.columns(4)
 
+            # Affichage des métriques principales
             with col1:
                 st.metric('MRR', f"{metrics['MRR']:.4f}")
             with col2:
