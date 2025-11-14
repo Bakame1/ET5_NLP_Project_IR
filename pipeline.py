@@ -4,9 +4,9 @@ import argparse
 import pickle
 from typing import Dict, List, Set, Tuple
 from typing import Callable
-
+import index
 import preprocess
-import indexation
+import ranking
 import evaluation
 
 
@@ -60,11 +60,11 @@ def load_queries(file_path):
     @top_k_for_reranking: nombre de documents à envoyer au cross-encoder pour reranking
     @return: liste ordonnée de doc_ids
 """
-def single_query_retrieve(X, vectorizer, documents, query_variants, k, rerank, top_k_for_reranking):
+def single_query_retrieve(X, vectorizer, documents, candidate_docs, query_variants, k, rerank, top_k_for_reranking):
     # On va récupérer des résultats pour chaque variante puis fusionner
     aggregated_scores = {}  # doc_id -> best_score (or sum)
-    for q in query_variants:
-        top = indexation.get_top_k_documents(X, vectorizer, q, documents, k=len(documents)) # top contient tuples (doc_id, score)
+    for i,q in enumerate(query_variants):
+        top = ranking.get_top_k_documents(X, vectorizer, q, candidate_docs[i], k=len(candidate_docs[i])) # top contient tuples (doc_id, score)
         for doc_id, score in top:
             if doc_id not in aggregated_scores or score > aggregated_scores[doc_id]:
                 aggregated_scores[doc_id] = score
@@ -73,7 +73,7 @@ def single_query_retrieve(X, vectorizer, documents, query_variants, k, rerank, t
 
     if rerank:
         top_for_rerank = [(doc_id, aggregated_scores[doc_id]) for doc_id in retrieved_ids[:top_k_for_reranking]] # Préparer les top documents pour reranking
-        reranked = indexation.rerank_with_cross_encoder(query_variants[0], top_for_rerank, documents) # Utiliser la première variante pour le reranking
+        reranked = ranking.rerank_with_cross_encoder(query_variants[0], top_for_rerank, documents) # Utiliser la première variante pour le reranking
         final_ids = [doc_id for doc_id, _ in reranked] # Extraire les doc_ids rerankés
     else: # Pas de reranking, on garde l'ordre TF-IDF
         final_ids = retrieved_ids
@@ -95,14 +95,14 @@ def load_or_compute_tfidf(documents, model_file = 'tfidf_model.pkl', force_tfidf
     """Charge le modèle TF-IDF ou le recalcule si nécessaire."""
     if os.path.exists(model_file) and not force_tfidf:
         log_fn(f"Chargement du modèle TF-IDF depuis {model_file}...")
-        return indexation.load_tfidf_model(model_file)
+        return ranking.load_tfidf_model(model_file)
     log_fn("Calcul du TF-IDF...")
-    X, vectorizer = indexation.tf_idf(documents)
-    indexation.save_tfidf_model(X, vectorizer, model_file=model_file)
+    X, vectorizer = ranking.tf_idf(documents)
+    ranking.save_tfidf_model(X, vectorizer, model_file=model_file)
     return X, vectorizer
 
 
-def retrieve_all_queries(X, vectorizer, documents, query_texts, k, rerank, top_k_for_reranking):
+def retrieve_all_queries(X, vectorizer, documents, candidate_docs, query_texts, k, rerank, top_k_for_reranking):
     """Exécute la récupération (et reranking optionnel) pour toutes les requêtes."""
     retrieved_per_query = {}
     for qid, variants in query_texts.items():
@@ -110,6 +110,7 @@ def retrieve_all_queries(X, vectorizer, documents, query_texts, k, rerank, top_k
             X,
             vectorizer,
             documents,
+            candidate_docs[qid],  # candidate documents for all variants
             variants,
             k=k,
             rerank=rerank,
@@ -127,22 +128,45 @@ def run_pipeline(args, log_fn = print):
         log_fn=log_fn,
     )
 
-    # 2) Charger ou calculer TF-IDF
+    # 2) Charger les queries et ground-truths
+    ground_truths, query_texts = load_queries('requetes.jsonl')
+
+    # 3) Building the revert Index
+    reverse_index = index.make_reverse_index(documents)
+
+    # 4) Charger ou calculer TF-IDF
+
     X, vectorizer = load_or_compute_tfidf(
         documents,
         model_file='tfidf_model.pkl',
         force_tfidf=args.force_tfidf,
         log_fn=log_fn,
-    )
+    )  
 
-    # 3) Charger les queries et ground-truths
-    ground_truths, query_texts = load_queries('requetes.jsonl')
+    # Assurer que chaque document a un `_index` entier correspondant à la ligne dans X
+    for idx, doc in enumerate(documents):
+        if isinstance(doc, dict):
+            doc['_index'] = idx
 
+    #5) Utilisation de l'index inversé pour récupérer les documents pertinents pour chaque requête
+    candidate_docs = {}  # mapping qid -> list of candidate documents (one list per query variant)
+    for qid, variants in query_texts.items():
+        # Initialize an empty list to hold candidate docs for each variant of this query
+        candidate_docs[qid] = []
+        for i, variant in enumerate(variants):
+            # compute tokens for this specific variant (don't accumulate across variants)
+            request_tokens = set(preprocess.preprocess_text(variant))
+            candidate_list = index.get_candidate_docs(reverse_index, documents, request_tokens)
+            candidate_docs[qid].append(candidate_list)
+
+
+    
     # 4) Pour chaque requête, récupérer et (optionnel) reranker
     retrieved_per_query = retrieve_all_queries(
         X,
         vectorizer,
         documents,
+        candidate_docs,
         query_texts,
         k=args.k,
         rerank=args.rerank,

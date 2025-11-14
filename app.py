@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 
 import pipeline
-import indexation
+import ranking
 
 # Constantes
 DATA_DIR = Path('wiki_split_extract_2k')
@@ -75,12 +75,26 @@ def search_query(query, documents, X, vectorizer, k, rerank, top_k_for_reranking
     @top_k_for_reranking : nombre de documents à récupérer avant reranking
     @return : liste de tuples (doc_id, score_cross_encoder)
     """
-    if rerank:
-        top_tfidf = indexation.get_top_k_documents(X, vectorizer, query, documents, top_k_for_reranking)
-        results = indexation.rerank_with_cross_encoder(query, top_tfidf, documents)
-        return results[:k]
-    else:
-        return indexation.get_top_k_documents(X, vectorizer, query, documents, k)
+    # Ensure each document has a numeric _index corresponding to TF-IDF rows.
+    for idx, doc in enumerate(documents):
+        if isinstance(doc, dict) and not isinstance(doc.get('_index'), int):
+            doc['_index'] = idx
+
+    try:
+        if rerank:
+            top_tfidf = ranking.get_top_k_documents(X, vectorizer, query, documents, top_k_for_reranking)
+            results = ranking.rerank_with_cross_encoder(query, top_tfidf, documents)
+            return results[:k]
+        else:
+            return ranking.get_top_k_documents(X, vectorizer, query, documents, k)
+    except Exception as e:
+        # In the Streamlit UI show an error and return empty list instead of raising
+        try:
+            import streamlit as _st
+            _st.error(f"Erreur recherche: {e}")
+        except Exception:
+            pass
+        return []
 
 # Programme principal Streamlit
 def main():

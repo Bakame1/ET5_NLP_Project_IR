@@ -39,6 +39,23 @@ def tf_idf(preprocessed_documents):
     X = vectorizer.fit_transform(corpus)
     return X, vectorizer
 
+def score_query_tfidf(X, vectorizer, query_tokens, candidate_doc_ids):
+    """
+    Calcule les scores TF-IDF pour une requête donnée sur un ensemble de documents candidats.
+    @X : matrice TF-IDF des documents
+    @vectorizer : le vectoriseur TF-IDF
+    @query_tokens : liste des tokens de la requête prétraitée
+    @candidate_doc_ids : liste des identifiants des documents candidats
+    @return : dictionnaire doc_id -> score TF-IDF
+    """
+    # Convertir la requête en vecteur TF-IDF
+    query_vec = vectorizer.transform([query_tokens])
+    # Calculer la similarité cosinus entre la requête et les documents candidats
+    similarities = cosine_similarity(query_vec, X[candidate_doc_ids]).flatten()
+    # Construire le dictionnaire doc_id -> score
+    scores = {doc_id: similarities[idx] for idx, doc_id in enumerate(candidate_doc_ids)}
+    return scores
+
 '''
 Retourne les k documents les plus similaires à la requête
 
@@ -52,13 +69,41 @@ Retourne les k documents les plus similaires à la requête
 def get_top_k_documents(X,vectorizer,query,documents, k):
     # Prétraiter la requête avec le même pipeline que les documents
     query_pre_processed = preprocess.preprocess_text(query)
+    # Si aucun document candidat, retourner une liste vide
+    if not documents:
+        return []
+    #Recuperer les docIDs des documents
+    # Chaque `doc` dans `documents` doit contenir un champ `_index` indiquant la ligne
+    # correspondante dans la matrice TF-IDF `X` (voir pipeline.py qui ajoute `_index`).
+    # Construire une liste (doc, idx) où idx est soit `_index` s'il existe,
+    # soit la position dans la liste `documents` (fallback).
+    doc_idx_pairs = []
+    for pos, doc in enumerate(documents):
+        idx = doc.get('_index') if isinstance(doc.get('_index'), int) else pos
+        # Vérifier que l'indice est dans les bornes de X
+        try:
+            if idx is None:
+                continue
+            if not (0 <= idx < X.shape[0]):
+                continue
+        except Exception:
+            continue
+        doc_idx_pairs.append((doc, idx))
+
+    if not doc_idx_pairs:
+        return []
+
+    doc_indices = [pair[1] for pair in doc_idx_pairs]
     # Convertir la requête prétraitée en vecteur TF-IDF
     query_vec = vectorizer.transform([query_pre_processed])
-    # Calculer la similarité cosinus entre la requête et tous les documents
-    similarities = cosine_similarity(query_vec, X).flatten()
-    top_k_indices = similarities.argsort()[-k:][::-1]
-    top_k_documents = [(documents[i]["doc_id"], similarities[i]) for i in top_k_indices]
-    return top_k_documents
+    # Calculer la similarité cosinus entre la requête et les documents candidates
+    similarities = cosine_similarity(query_vec, X[doc_indices]).flatten()
+
+    # Construire la liste (doc_id, score) alignée sur l'ordre de `documents`
+    id_score_pairs = [(doc_idx_pairs[i][0]["doc_id"], float(similarities[i])) for i in range(len(doc_idx_pairs))]
+    # Trier et garder les k meilleurs
+    id_score_pairs.sort(key=lambda x: x[1], reverse=True)
+    return id_score_pairs[:k]
 
 
 """
@@ -74,7 +119,6 @@ def rerank_with_cross_encoder(query, top_k_documents, documents, model_name='cro
     cross_encoder = get_cross_encoder(model_name)
 
     doc_dict = {doc["doc_id"]: doc["tokens"] for doc in documents} # Créer un dictionnaire pour accéder rapidement aux tokens par doc_id
-
     # Préparer les paires (query, document_text) que le cross-encoder attend en entrée
     pairs = []
     doc_ids = []
