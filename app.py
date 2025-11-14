@@ -75,7 +75,7 @@ def search_query(query, documents, X, vectorizer, k, rerank, top_k_for_reranking
     @top_k_for_reranking : nombre de documents à récupérer avant reranking
     @return : liste de tuples (doc_id, score_cross_encoder)
     """
-    # Ensure each document has a numeric _index corresponding to TF-IDF rows.
+    # S'assurer que chaque document a un '_index' pour le reranking
     for idx, doc in enumerate(documents):
         if isinstance(doc, dict) and not isinstance(doc.get('_index'), int):
             doc['_index'] = idx
@@ -88,7 +88,7 @@ def search_query(query, documents, X, vectorizer, k, rerank, top_k_for_reranking
         else:
             return ranking.get_top_k_documents(X, vectorizer, query, documents, k)
     except Exception as e:
-        # In the Streamlit UI show an error and return empty list instead of raising
+        # En cas d'erreur, afficher un message dans Streamlit
         try:
             import streamlit as _st
             _st.error(f"Erreur recherche: {e}")

@@ -62,7 +62,7 @@ def load_queries(file_path):
 """
 def single_query_retrieve(X, vectorizer, documents, candidate_docs, query_variants, k, rerank, top_k_for_reranking):
     # On va récupérer des résultats pour chaque variante puis fusionner
-    aggregated_scores = {}  # doc_id -> best_score (or sum)
+    aggregated_scores = {}  # doc_id -> meilleur score tf-idf parmi variantes
     for i,q in enumerate(query_variants):
         top = ranking.get_top_k_documents(X, vectorizer, q, candidate_docs[i], k=len(candidate_docs[i])) # top contient tuples (doc_id, score)
         for doc_id, score in top:
