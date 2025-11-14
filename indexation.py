@@ -2,7 +2,7 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
-import preprocessing_all_text as preprocess
+import preprocess
 import joblib
 from sentence_transformers import CrossEncoder
 from functools import lru_cache

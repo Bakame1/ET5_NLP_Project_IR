@@ -29,7 +29,7 @@ def get_cached_documents(force_preprocess):
 
 
 @st.cache_resource(show_spinner=False)
-def get_cached_tfidf(_documents, force_tfidf: bool):
+def get_cached_tfidf(_documents, force_tfidf):
     """Charge le TF-IDF sans appel à st.toast."""
     return pipeline.load_or_compute_tfidf(
         _documents,
@@ -39,7 +39,7 @@ def get_cached_tfidf(_documents, force_tfidf: bool):
     )
 
 
-def run_full_pipeline(k: int, top_k: int, rerank: bool, force_preprocess: bool, force_tfidf: bool):
+def run_full_pipeline(k, top_k, rerank, force_preprocess, force_tfidf):
     class Args:
         pass
 
@@ -52,7 +52,7 @@ def run_full_pipeline(k: int, top_k: int, rerank: bool, force_preprocess: bool, 
 
     logs = []
 
-    def log_fn(msg: str):
+    def log_fn(msg):
         logs.append(msg)
 
     output = pipeline.run_pipeline(args, log_fn=log_fn)
@@ -60,7 +60,7 @@ def run_full_pipeline(k: int, top_k: int, rerank: bool, force_preprocess: bool, 
     return output, logs
 
 
-def search_query(query: str, documents, X, vectorizer, k: int, rerank: bool, top_k_for_reranking: int):
+def search_query(query, documents, X, vectorizer, k, rerank, top_k_for_reranking):
     """Effectue une recherche pour une requête unique."""
     if rerank:
         top_tfidf = indexation.get_top_k_documents(X, vectorizer, query, documents, top_k_for_reranking)

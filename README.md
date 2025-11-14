@@ -59,7 +59,7 @@ python pipeline.py --k 10 --top-k 30 --rerank
 
 #### Prétraitement seul
 ```bash
-python preprocessing_all_text.py
+python preprocess.py
 ```
 
 #### Indexation et recherche

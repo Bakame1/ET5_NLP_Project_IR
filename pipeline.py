@@ -5,7 +5,7 @@ import pickle
 from typing import Dict, List, Set, Tuple
 from typing import Callable
 
-import preprocessing_all_text as preprocess
+import preprocess
 import indexation
 import evaluation
 
@@ -19,9 +19,9 @@ import evaluation
         ground_truths: Dict[query_id, Set[relevant_doc_ids]]
         query_texts: Dict[query_id, List[query_variants]]
 """
-def load_queries(file_path: str) -> Tuple[Dict[str, Set[str]], Dict[str, List[str]]]:
-    ground_truths: Dict[str, Set[str]] = {} # mapping query_id -> set of relevant doc_ids (ground truth)
-    query_texts: Dict[str, List[str]] = {}  # mapping query_id -> list of query variants (pour recherche)
+def load_queries(file_path):
+    ground_truths = {} # mapping query_id -> set of relevant doc_ids (ground truth)
+    query_texts = {}  # mapping query_id -> list of query variants (pour recherche)
     with open(file_path, 'r', encoding='utf-8') as f:
         for line_num, line in enumerate(f):
             if not line.strip():
@@ -60,7 +60,7 @@ def load_queries(file_path: str) -> Tuple[Dict[str, Set[str]], Dict[str, List[st
     @top_k_for_reranking: nombre de documents à envoyer au cross-encoder pour reranking
     @return: liste ordonnée de doc_ids
 """
-def single_query_retrieve(X, vectorizer, documents, query_variants: List[str], k: int, rerank: bool, top_k_for_reranking: int):
+def single_query_retrieve(X, vectorizer, documents, query_variants, k, rerank, top_k_for_reranking):
     # On va récupérer des résultats pour chaque variante puis fusionner
     aggregated_scores = {}  # doc_id -> best_score (or sum)
     for q in query_variants:
@@ -81,10 +81,7 @@ def single_query_retrieve(X, vectorizer, documents, query_variants: List[str], k
     return final_ids[:k]
 
 
-def load_or_preprocess_documents(directory_path: str = 'wiki_split_extract_2k',
-                                 output_file: str = 'preprocessed_data.pkl',
-                                 force_preprocess: bool = False,
-                                 log_fn: Callable[[str], None] = print):
+def load_or_preprocess_documents(directory_path = 'wiki_split_extract_2k', output_file = 'preprocessed_data.pkl', force_preprocess = False, log_fn = print):
     """Charge les documents prétraités depuis pickle ou relance le prétraitement."""
     if os.path.exists(output_file) and not force_preprocess:
         log_fn(f"Chargement des données prétraitées depuis {output_file}...")
@@ -94,10 +91,7 @@ def load_or_preprocess_documents(directory_path: str = 'wiki_split_extract_2k',
     return preprocess.prepare_data_for_indexing(directory_path, output_file)
 
 
-def load_or_compute_tfidf(documents,
-                          model_file: str = 'tfidf_model.pkl',
-                          force_tfidf: bool = False,
-                          log_fn: Callable[[str], None] = print):
+def load_or_compute_tfidf(documents, model_file = 'tfidf_model.pkl', force_tfidf = False, log_fn = print):
     """Charge le modèle TF-IDF ou le recalcule si nécessaire."""
     if os.path.exists(model_file) and not force_tfidf:
         log_fn(f"Chargement du modèle TF-IDF depuis {model_file}...")
@@ -108,15 +102,9 @@ def load_or_compute_tfidf(documents,
     return X, vectorizer
 
 
-def retrieve_all_queries(X,
-                         vectorizer,
-                         documents,
-                         query_texts: Dict[str, List[str]],
-                         k: int,
-                         rerank: bool,
-                         top_k_for_reranking: int) -> Dict[str, List[str]]:
+def retrieve_all_queries(X, vectorizer, documents, query_texts, k, rerank, top_k_for_reranking):
     """Exécute la récupération (et reranking optionnel) pour toutes les requêtes."""
-    retrieved_per_query: Dict[str, List[str]] = {}
+    retrieved_per_query = {}
     for qid, variants in query_texts.items():
         retrieved_per_query[qid] = single_query_retrieve(
             X,
@@ -130,7 +118,7 @@ def retrieve_all_queries(X,
     return retrieved_per_query
 
 
-def run_pipeline(args, log_fn: Callable[[str], None] = print):
+def run_pipeline(args, log_fn = print):
     # 1) Prétraitement si nécessaire
     documents = load_or_preprocess_documents(
         directory_path='wiki_split_extract_2k',
