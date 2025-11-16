@@ -117,11 +117,10 @@ def main():
         force_tfidf = st.checkbox('Forcer le recalcul TF-IDF', value=False)# box pour forcer le recalcul du modèle TF-IDF
 
         st.divider()
-        st.info('💡 Configurez les options puis utilisez les onglets ci-dessus.')
 
     # tab1 : Recherche interactive comme sur un moteur de recherche
     # tab2 : Évaluation complète du pipeline sur toutes les requêtes du fichier JSONL
-    tab1, tab2 = st.tabs(['🔎 Recherche Interactive', '📊 Évaluation Complète'])
+    tab1, tab2 = st.tabs(['Recherche Interactive', 'Évaluation Complète'])
 
     ################### Onglet 1 : Recherche Interactive ###################
     with tab1:
